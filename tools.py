@@ -1,4 +1,4 @@
-class Application_obj():
+class Init_App():
     """This class is the place where the several functions will be """
     def __init__(self, new_url):
         self.url = new_url
@@ -63,6 +63,43 @@ class Application_obj():
 
 class ML_models(object):
     """docstring for ML_models."""
-    def __init__(self, arg):
-        super(ML_models, self).__init__()
-        self.arg = arg
+    def __init__(self, model, directory):
+        self.new_model = model
+        self.new_directory = directory
+
+    def select_train_model(self):
+        if self.new_model == "LRSKL":
+            self.LogisticRegression_SKL_train()
+        else:
+            print("Please choose a valid model.")
+
+    def LogisticRegression_SKL_train(self):
+        """This function will create a Logistic Regression model, then trains it and saves it"""
+
+        from PIL import Image
+        import numpy as np
+        import os
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.preprocessing import LabelEncoder
+
+        lstrain = os.listdir(self.new_directory)
+        lstrain.sort()
+        print("Processing the images...")
+        train_imgs = np.zeros((len(lstrain), 4096))
+
+        for i in range(len(lstrain)):
+            train_imgs[i] = np.mean(np.asarray(Image.open(self.new_directory+lstrain[i]).resize((64,64))), axis=2).flatten()
+
+        y_train = []
+        for i in lstrain:
+            y_train.append(i[:2])
+
+        print("Processing the labels...")
+        new_ytrain = LabelEncoder()
+        new_ytrain.fit(y_train)
+        new_ytrain.transform(y_train);
+
+        LR = LogisticRegression()
+        print("Training...")
+        LR.fit(train_imgs, new_ytrain.transform(y_train))
+        print("Finished.")
